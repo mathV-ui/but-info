@@ -24,7 +24,7 @@ But-Info.xyz vise à simplifier la gestion et la découverte des projets web des
 ## Technologies utilisées
 
 - PHP (Programmation orientée objet)
-- MySQL (Base de données)
+- Postgresql (Base de données)
 - HTML, CSS, JavaScript (Front-end)
 - Apache (Serveur web)
 

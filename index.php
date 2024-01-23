@@ -13,7 +13,7 @@ require_once "Models/Model.php";
 require_once "Controllers/Controller.php";
 
 //Liste des contrôleurs
-$controllers = ["", "", "", "", "", "", ""];
+$controllers = [""];
 //Nom du contrôleur par défaut
 $controller_default = "";
 

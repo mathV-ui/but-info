@@ -1,0 +1,86 @@
+.checkbox-wrapper-54.header input[type="checkbox"] {
+    visibility: hidden;
+    display: none;
+}
+
+.checkbox-wrapper-54.header *,
+.checkbox-wrapper-54.header ::after,
+.checkbox-wrapper-54.header ::before {
+    box-sizing: border-box;
+}
+
+/* The switch - the box around the slider */
+.checkbox-wrapper-54.header .switch {
+    --width-of-switch: 3.5em;
+    --height-of-switch: 2em;
+    /* size of sliding icon -- sun and moon */
+    --size-of-icon: 1.4em;
+    /* it is like a inline-padding of switch */
+    --slider-offset: 0.3em;
+    position: relative;
+    width: var(--width-of-switch);
+    height: var(--height-of-switch);
+    display: inline-block;
+}
+
+/* The slider */
+.checkbox-wrapper-54.header .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #f4f4f5;
+    transition: .4s;
+    border-radius: 30px;
+}
+
+.checkbox-wrapper-54.header .slider:before {
+    position: absolute;
+    content: "";
+    height: var(--size-of-icon,1.4em);
+    width: var(--size-of-icon,1.4em);
+    border-radius: 20px;
+    left: var(--slider-offset,0.3em);
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(40deg,#ff0080,#ff8c00 70%);
+    transition: .4s;
+}
+
+.checkbox-wrapper-54.header input:checked + .slider {
+    background-color: #303136;
+}
+
+.checkbox-wrapper-54.header input:checked + .slider:before {
+    left: calc(100% - (var(--size-of-icon,1.4em) + var(--slider-offset,0.3em)));
+    background: #303136;
+    /* change the value of second inset in box-shadow to change the angle and direction of the moon  */
+    box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #a3dafb;
+}
+
+header {
+    background-color: rgb(255, 208, 0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+  
+/* Style de l'image dans le header */
+header img#logo {
+  width: 100px; /* Définit la largeur souhaitée en pixels ou toute autre unité de mesure */
+  height: auto; /* Permet à la hauteur de s'ajuster automatiquement en fonction de la largeur */
+  max-width: 100%; /* Assurez-vous que l'image ne dépasse pas la largeur du conteneur parent */
+  display: block; /* Supprime l'espace réservé sous l'image */
+  margin: 0 auto; /* Centre l'image horizontalement */
+}
+
+/* Style du titre h1 dans le header */
+header #titre {
+    margin: 0 auto; /* Centrer horizontalement en utilisant une marge automatique */
+    text-align: center; /* Centre le texte horizontalement */
+    line-height: 1.5;
+  }

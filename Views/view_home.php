@@ -1,1 +1,3 @@
+<?php require "view_begin.php"; ?>
 <h1> Hello World ! </h1>
+<?php require "view_end.php"; ?>

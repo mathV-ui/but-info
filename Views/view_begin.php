@@ -5,12 +5,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title> But-Info</title>
 		<!-- Importer l'icône du site -->
-		<link rel="icon" href="/Content/img/but-info_logo.ico" type="image/x-icon">
+		<link rel="icon" href="content/img/but-info_logo.ico" type="image/x-icon">
 
 		<!-- Importer la feuille de style CSS -->
-		<link rel="stylesheet" href="/Content/css/styles.css">
+		<link rel="stylesheet" href="content/css/styles.css">
 
 		<!-- Importer le script JavaScript -->
-		<script src="/Content/js/script.js" defer></script>
+		<script src="content/js/script.js" defer></script>
 	</head>
 	<body>

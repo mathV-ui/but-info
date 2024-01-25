@@ -84,3 +84,44 @@ header #titre {
     text-align: center; /* Centre le texte horizontalement */
     line-height: 1.5;
   }
+
+  
+ul.eleves {
+    list-style: none; /* Supprime les puces de liste */
+    padding: 0;
+}
+
+ul.eleves li.eleve {
+    border: 1px solid rgb(255, 208, 0);
+    margin: 0 auto 10px;
+    padding: 5px;
+    width: 70%; /* Largeur de chaque élément li */
+    border-radius: 5px; /* Coins arrondis */
+    transition: transform 0.3s, border-color 0.3s; /* Ajoute une transition douce */
+}
+
+ul.eleves li.eleve:hover {
+    border: 1px solid rgb(255, 51, 0);
+    transform: scale(1.03); /* Grossit l'élément à 110% de sa taille initiale */
+    border-color: rgb(255, 0, 0); /* Change la couleur de la bordure au survol */
+}
+
+/* Lien non visité */
+a.sites {
+    color: #cc3333; /* Couleur par défaut du texte du lien non visité */
+}
+
+/* Lien survolé */
+a.sites:hover {
+    color: #ff0000; /* Couleur du texte du lien lorsqu'il est survolé par la souris */
+}
+
+/* Lien visité */
+a.sites:visited {
+    color: #800080; /* Couleur du texte du lien déjà visité */
+}
+
+/* Lien actif (en cours de clic) */
+a.sites:active {
+    color: #000000; /* Couleur du texte du lien lorsqu'il est activé (en cours de clic) */
+}

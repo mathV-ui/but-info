@@ -16,3 +16,4 @@
     </div>
 
 </header>
+<?php require "view_menu.php";?>

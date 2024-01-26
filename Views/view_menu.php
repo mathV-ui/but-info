@@ -1,7 +1,7 @@
 <nav>
     <ul class="sous">
-        <li><a href="#" id='nav'>Cours HTML et CSS</a></li>
-        <li><a href="#" id='nav'>Cours JavaScript</a></li>
-        <li><a href="#" id='nav'>Cours PHP et MySQL</a></li>
+        <li><a href="#" id='nav'>Mettre un site</a></li>
+        <li><a href="#" id='nav'>discuter</a></li>
+        <li><a href="#" id='nav'>Deconnecter</a></li>
     </ul>
 </nav>

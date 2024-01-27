@@ -100,7 +100,7 @@ class Model
      * @param int $annee Année d'étude de l'élève
      * @return bool Retourne true en cas de succès, false en cas d'erreur
      */
-    public function registerStudent($nom, $prenom, $password, $mail, $token, $photo_de_profil, $annee)
+    public function registerStudent($nom, $prenom, $password, $mail, $annee)
     {
         try {
 

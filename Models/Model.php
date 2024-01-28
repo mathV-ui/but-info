@@ -113,10 +113,10 @@ class Model
 
             // Insérer l'utilisateur dans la table utilisateur
             $queryUser = $this->bd->prepare("INSERT INTO utilisateur (nom, prenom, password, mail, token, photo_de_profil, date_de_creation, mail_verifier)
-                                            VALUES (:nom, :prenom, :password, :mail, :token, :photo_de_profil, NOW(), 0)");
+                                            VALUES (:nom, :prenom, :password, :mail, :token, :photo_de_profil, NOW(), FALSE)");
             $queryUser->bindParam(':nom', $nom, PDO::PARAM_STR);
             $queryUser->bindParam(':prenom', $prenom, PDO::PARAM_STR);
-            $queryUser->bindParam(':password', $password, PDO::PARAM_STR);
+            $queryUser->bindParam(':password', $hashedPassword);
             $queryUser->bindParam(':mail', $mail, PDO::PARAM_STR);
             $queryUser->bindParam(':token', $token, PDO::PARAM_STR);
             $queryUser->bindParam(':photo_de_profil', $photo_de_profil, PDO::PARAM_STR);
@@ -148,36 +148,41 @@ class Model
 
 
     /**
-     * Méthode pour authentifier un utilisateur par email et mot de passe
-     *
-     * @param string $mail Adresse email de l'utilisateur
-     * @param string $password Mot de passe de l'utilisateur
-     * @return array|false Un tableau contenant les informations de l'utilisateur en cas de succès, false en cas d'échec
+     * Connection utilisateur
+     * 
+     * @param string $mail mail de l'utilisateur
+     * @param string $password mail de l'utilisateur
+     * @return Bool
      */
-    public function authenticateUser($mail, $password)
+    public function getUserByCredentials($mail, $password)
     {
         try {
-            // Requête pour récupérer les informations de l'utilisateur par email
-            $query = $this->bd->prepare("SELECT * FROM utilisateur WHERE mail = :mail");
-            $query->bindParam(':mail', $mail, PDO::PARAM_STR);
-            $query->execute();
+            // Prepare
+            $stmt = $this->bd->prepare("SELECT * FROM utilisateur WHERE mail = :mail");
 
-            // Récupérer les données de l'utilisateur
-            $user = $query->fetch(PDO::FETCH_ASSOC);
+            // Bind
+            $stmt->bindParam(':mail', $mail);
 
-            // Vérifier si l'utilisateur existe et si le mot de passe est correct
+            // Execute
+            $stmt->execute();
+
+            
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            
+            $stmt->closeCursor();
+
+            // Vérifiez le mot de passe si l'utilisateur est trouvé
             if ($user && password_verify($password, $user['password'])) {
-                // Retourner les informations de l'utilisateur s'il est authentifié
+
+                //unset($user['password']); // Supprimez le mot de passe haché du résultat pour des raisons de sécurité => COMMENTé POUR LE MOMMENT
                 return $user;
             } else {
-                // L'authentification a échoué
-                return false;
+                // Soit l'utilisateur est introuvable, soit le mot de passe est incorrect
+                return null;
             }
         } catch (PDOException $e) {
-            // Gérer les erreurs de la base de données
-            // Vous pouvez ajuster cela en fonction de vos besoins
-            echo "Erreur de base de données: " . $e->getMessage();
-            return false;
+            return null;
         }
     }
 
@@ -210,38 +215,6 @@ class Model
     }
 
     /**
-     * Méthode pour ajouter une ligne dans la table github
-     *
-     * @param string $lien Lien GitHub à ajouter
-     * @param bool $verifier Statut de vérification (true si vérifié, false sinon)
-     * @return bool Retourne true en cas de succès, false en cas d'échec
-     */
-    public function addGithubLink($lien, $verifier = false)
-    {
-        try {
-            // Requête pour insérer une ligne dans la table github
-            $query = $this->bd->prepare("INSERT INTO github (lien, verifier, date_du_github, id_utilisateur)
-                                         VALUES (:lien, :verifier, NOW(), :id_utilisateur)");
-
-            // Vous devez définir id_utilisateur en fonction de votre logique d'application
-            $id_utilisateur = 1; // Remplacez par la logique appropriée pour obtenir l'ID de l'utilisateur
-
-            $query->bindParam(':lien', $lien, PDO::PARAM_STR);
-            $query->bindParam(':verifier', $verifier, PDO::PARAM_BOOL);
-            $query->bindParam(':id_utilisateur', $id_utilisateur, PDO::PARAM_INT);
-
-            $query->execute();
-
-            return true; // L'ajout a réussi
-        } catch (PDOException $e) {
-            // Gérer les erreurs de la base de données
-            // Vous pouvez ajuster cela en fonction de vos besoins
-            echo "Erreur de base de données: " . $e->getMessage();
-            return false; // L'ajout a échoué
-        }
-    }
-
-    /**
      * Méthode pour fusionner les informations des tables github et utilisateur pour tous les utilisateurs, ordonnés par date la plus récente
      *
      * @return array|false Un tableau contenant les informations fusionnées pour tous les utilisateurs en cas de succès, false en cas d'échec
@@ -260,6 +233,227 @@ class Model
 
             // Retourner les données fusionnées s'il y a des résultats, sinon false
             return $mergedData ? $mergedData : false;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour récupérer le token d'un utilisateur par son email
+     *
+     * @param string $email L'email de l'utilisateur
+     * @return string|false Le token de l'utilisateur en cas de succès, false en cas d'échec
+     */
+    public function getTokenUtilisateurByEmail($email)
+    {
+        try {
+            // Requête pour récupérer le token de l'utilisateur par email
+            $query = $this->bd->prepare("SELECT token FROM utilisateur WHERE mail = :email");
+            $query->bindParam(':email', $email, PDO::PARAM_STR);
+            $query->execute();
+
+            // Récupérer le token de l'utilisateur s'il est trouvé
+            $token = $query->fetchColumn();
+
+            // Retourner le token de l'utilisateur s'il est trouvé, sinon false
+            return $token ? $token : false;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour récupérer les informations d'un utilisateur par son token
+     *
+     * @param string $token Le token de l'utilisateur
+     * @return array|false Un tableau contenant les informations de l'utilisateur en cas de succès, false en cas d'échec
+     */
+    public function getUserInfoByToken($token)
+    {
+        try {
+            // Requête pour récupérer les informations de l'utilisateur par token
+            $query = $this->bd->prepare("SELECT nom, prenom, mail FROM utilisateur WHERE token = :token");
+            $query->bindParam(':token', $token, PDO::PARAM_STR);
+            $query->execute();
+
+            // Récupérer les données de l'utilisateur
+            $userInfo = $query->fetch(PDO::FETCH_ASSOC);
+
+            // Retourner les informations de l'utilisateur s'il est trouvé, sinon false
+            return $userInfo ? $userInfo : false;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour obtenir tous les sites avec les noms et prénoms des utilisateurs associés
+     *
+     * @return array|false Un tableau contenant les informations des sites et des utilisateurs associés en cas de succès, false en cas d'échec
+     */
+    public function getAllSitesWithUsers()
+    {
+        try {
+            // Requête pour obtenir tous les sites avec les noms et prénoms des utilisateurs associés
+            $query = $this->bd->prepare("SELECT s.*, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur FROM site s JOIN utilisateur u ON s.id_utilisateur = u.id_utilisateur");
+            $query->execute();
+
+            // Récupérer les données des sites et des utilisateurs associés
+            $sites = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            // Retourner les données des sites et des utilisateurs associés
+            return $sites;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour ajouter un lien GitHub avec l'ID de l'utilisateur associé
+     *
+     * @param int $userId L'ID de l'utilisateur associé au lien GitHub
+     * @param string $lienGithub Le lien GitHub à ajouter
+     * @return bool Retourne true en cas de succès, false en cas d'échec
+     */
+    public function addGithubLink($userId, $lienGithub)
+    {
+        try {
+            // Requête pour ajouter un lien GitHub avec l'ID de l'utilisateur associé
+            $query = $this->bd->prepare("INSERT INTO github (lien, verifier, date_du_github, id_utilisateur) VALUES (:lienGithub, FALSE, NOW(), :userId)");
+            $query->bindParam(':lienGithub', $lienGithub, PDO::PARAM_STR);
+            $query->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $query->execute();
+
+            // Vérifier si la requête d'insertion a réussi
+            if ($query->rowCount() > 0) {
+                return true; // Succès : le lien GitHub a été ajouté avec succès
+            } else {
+                return false; // Échec : aucun enregistrement ajouté
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour vérifier si un utilisateur est modérateur en fonction de son token
+     *
+     * @param string $token Le token de l'utilisateur à vérifier
+     * @return bool Retourne true si l'utilisateur est modérateur, false sinon
+     */
+    public function isAdmin($token)
+    {
+        try {
+            // Requête pour vérifier si l'utilisateur est modérateur en fonction de son token
+            $query = $this->bd->prepare("SELECT COUNT(*) FROM moderateur m JOIN utilisateur u ON m.id_utilisateur = u.id_utilisateur WHERE u.token = :token");
+            $query->bindParam(':token', $token, PDO::PARAM_STR);
+            $query->execute();
+
+            // Récupérer le résultat de la requête
+            $count = $query->fetchColumn();
+
+            // Vérifier si l'utilisateur est modérateur
+            if($count > 0){
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour récupérer tous les liens de la table github qui ont false en verifier
+     *
+     * @return array|false Un tableau contenant les liens GitHub en cas de succès, false en cas d'échec
+     */
+    public function getUncheckedGithubLinks()
+    {
+        try {
+            // Requête pour récupérer tous les liens GitHub avec "false" en verifier
+            $query = $this->bd->prepare("SELECT g.*, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur FROM github g JOIN utilisateur u ON g.id_utilisateur = u.id_utilisateur WHERE g.verifier = FALSE");
+            $query->execute();
+
+            // Récupérer les données des liens GitHub
+            $uncheckedLinks = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            // Retourner les données des liens GitHub
+            return $uncheckedLinks;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour supprimer une ligne dans la table github en utilisant l'ID
+     *
+     * @param int $githubId L'ID du lien GitHub à supprimer
+     * @return bool Retourne true en cas de succès, false en cas d'échec
+     */
+    public function deleteGithubLink($githubId)
+    {
+        try {
+            // Requête pour supprimer le lien GitHub avec l'ID spécifié
+            $query = $this->bd->prepare("DELETE FROM github WHERE id_github = :githubId");
+            $query->bindParam(':githubId', $githubId, PDO::PARAM_INT);
+            $query->execute();
+
+            // Vérifier si la requête de suppression a réussi
+            if ($query->rowCount() > 0) {
+                return true; // Succès : le lien GitHub a été supprimé avec succès
+            } else {
+                return false; // Échec : aucun enregistrement supprimé
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+    
+    /**
+     * Méthode pour mettre à jour la colonne "verifier" d'une ligne dans la table github en utilisant l'ID
+     *
+     * @param int $githubId L'ID du lien GitHub à mettre à jour
+     * @return bool Retourne true en cas de succès, false en cas d'échec
+     */
+    public function updateGithubLinkVerification($githubId)
+    {
+        try {
+            // Requête pour mettre à jour la colonne "verifier" à true pour le lien GitHub avec l'ID spécifié
+            $query = $this->bd->prepare("UPDATE github SET verifier = TRUE WHERE id_github = :githubId");
+            $query->bindParam(':githubId', $githubId, PDO::PARAM_INT);
+            $query->execute();
+
+            // Vérifier si la requête de mise à jour a réussi
+            if ($query->rowCount() > 0) {
+                return true; // Succès : la colonne "verifier" a été mise à jour avec succès
+            } else {
+                return false; // Échec : aucun enregistrement mis à jour
+            }
         } catch (PDOException $e) {
             // Gérer les erreurs de la base de données
             // Vous pouvez ajuster cela en fonction de vos besoins

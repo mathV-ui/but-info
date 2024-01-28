@@ -9,6 +9,19 @@ class Controller_auth extends Controller
 
     public function action_auth()
     {
+        
+        if (isset($_SESSION['user_id']) && isset($_SESSION['user_token'])) {
+            // Vérifier si les valeurs de session ne sont pas vides
+            if (!empty($_SESSION['user_id']) && !empty($_SESSION['user_token'])) {
+                $model = Model::getModel();
+                // La session existe avec des valeurs non vides et existantes
+                $data = [
+                    'co' => 'connected',
+                    'user' => $model->getUserInfoByToken($_SESSION['user_token']),
+                ];
+                $this->render('home', $data);
+            } 
+        }
         if (!isset($_GET['ci'])){
             $data=[
                 'ci' => 'connecter'
@@ -23,7 +36,27 @@ class Controller_auth extends Controller
 
     public function action_connecter()
     {
-
+        if (isset($_SESSION['user_id']) && isset($_SESSION['user_token'])) {
+            // Vérifier si les valeurs de session ne sont pas vides
+            if (!empty($_SESSION['user_id']) && !empty($_SESSION['user_token'])) {
+                $model = Model::getModel();
+                // La session existe avec des valeurs non vides et existantes
+                $data = [
+                    'co' => 'connected',
+                    'user' => $model->getUserInfoByToken($_SESSION['user_token']),
+                ];
+                $this->render('home', $data);
+            } 
+        }
+        if (!isset($_GET['ci'])){
+            $data=[
+                'ci' => 'connecter'
+            ];
+        }else{
+            $data=[
+                'ci' => $_GET['ci']
+            ];
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (isset($_POST['email'], $_POST['password']) && !empty($_POST['email']) && !empty($_POST['password'])) {
@@ -32,7 +65,7 @@ class Controller_auth extends Controller
 
                 if (strlen($password) <= 256 && strlen($email) <= 128) {
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        $user = Model::getModel()->authenticateUser($email, $password);
+                        $user = Model::getModel()->getUserByCredentials($email, $password);
 
                         if ($user) {
 
@@ -50,7 +83,7 @@ class Controller_auth extends Controller
                             header("Location: ?controller=home");
                             exit();
                         } else {
-                            echo "Identifiants incorrects.";
+                            echo  var_dump($user);
                         }
                     } else {
                         echo "Format d'e-mail invalide.";
@@ -65,10 +98,31 @@ class Controller_auth extends Controller
             echo "Accès non autorisé.";
         }
 
-        $this->render("auth", []);
+        $this->render("auth", $data);
     }
 
     public function action_inscrire() {
+        if (isset($_SESSION['user_id']) && isset($_SESSION['user_token'])) {
+            // Vérifier si les valeurs de session ne sont pas vides
+            if (!empty($_SESSION['user_id']) && !empty($_SESSION['user_token'])) {
+                $model = Model::getModel();
+                // La session existe avec des valeurs non vides et existantes
+                $data = [
+                    'co' => 'connected',
+                    'user' => $model->getUserInfoByToken($_SESSION['user_token']),
+                ];
+                $this->render('home', $data);
+            } 
+        }
+        if (!isset($_GET['ci'])){
+            $data=[
+                'ci' => 'inscrire'
+            ];
+        }else{
+            $data=[
+                'ci' => $_GET['ci']
+            ];
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (
@@ -84,20 +138,28 @@ class Controller_auth extends Controller
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         if (preg_match('/^[a-zA-Z\-]+$/', $nom) && preg_match('/^[a-zA-Z\-]+$/', $prenom)) {
 
-                            $but = isset($_POST['but']) ? ($_POST['but'] === 'but1' ? 'but1' : ($_POST['but'] === 'but2' ? 'but2' : ($_POST['but'] === 'but3' ? 'but3' : ''))) : '';
+                            $but = isset($_POST['but']) ? ($_POST['but'] === '1' ? '1' : ($_POST['but'] === '2' ? '2' : ($_POST['but'] === '3' ? '3' : ''))) : '';
 
                             if ($but !== '') {
-                                $result = Model::getModel()->registerStudent($nom, $prenom, $password, $mail, $but);
+                                $result = Model::getModel()->registerStudent($nom, $prenom, $password, $email, $but);
 
                                 if ($result) {
                                     echo "Inscription réussie!<br>";
-                                    $verificationToken = Model::getModel()->getTokenUtilisateur($email);
+                                    $verificationToken = Model::getModel()->getTokenUtilisateurByEmail($email);
                                     // $verificationLink = 'http://localhost/perform_vision/?controller=auth&action=valide_email'. '&token=' . urlencode($verificationToken);
 
                                     // EmailSender::sendVerificationEmail($email, 'Vérification de l\'adresse e-mail', 'Cliquez sur le lien suivant pour vérifier votre adresse e-mail: ' . $verificationLink);
                                     
                                     // echo "<br> Un e-mail de vérification a été envoyé à votre adresse. <br>";
-
+                                    if (!isset($_GET['ci'])){
+                                        $data=[
+                                            'ci' => 'connecter'
+                                        ];
+                                    }else{
+                                        $data=[
+                                            'ci' => $_GET['ci']
+                                        ];
+                                    }
                                 } else {
                                     echo "Erreur lors de l'inscription.";
                                 }
@@ -120,7 +182,7 @@ class Controller_auth extends Controller
             echo "Accès non autorisé.";
         }
 
-        $this->render("auth", []);
+        $this->render("auth", $data);
 
     }
 
@@ -130,14 +192,35 @@ class Controller_auth extends Controller
     
         // Valider le token en appelant une fonction du modèle
         $validationResult = Model::getModel()->validerTokenUtilisateur($token);
-    
+        if (!isset($_GET['ci'])){
+            $data=[
+                'ci' => 'connecter'
+            ];
+        }else{
+            $data=[
+                'ci' => $_GET['ci']
+            ];
+        }
         if ($validationResult) {
             echo "Adresse e-mail vérifiée avec succès!";
+            
         } else {
             echo "Erreur lors de la vérification de l'adresse e-mail. Le lien peut avoir expiré ou être invalide.";
         }
     
-        $this->render("auth", []);
+        $this->render("auth", $data);
     }
-
+    public function action_deconnexion() {
+        $_SESSION = array();
+        if (!isset($_GET['ci'])){
+            $data=[
+                'ci' => 'connecter'
+            ];
+        }else{
+            $data=[
+                'ci' => $_GET['ci']
+            ];
+        }
+        $this->render("auth", $data);
+    }
 }

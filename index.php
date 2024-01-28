@@ -13,7 +13,7 @@ require_once "Models/Model.php";
 require_once "Controllers/Controller.php";
 
 //Liste des contrôleurs
-$controllers = ["home","auth"];
+$controllers = ["home","auth","github","paneladmin"];
 //Nom du contrôleur par défaut
 $controller_default = "home";
 

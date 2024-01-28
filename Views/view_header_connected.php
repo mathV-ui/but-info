@@ -1,8 +1,8 @@
 <header>
 
     <span class='profil header'>
-    <p id='nom'>Nom</p>
-    <p id='prenom'>Prenom</p>
+    <p id='nom'><?=e($user['nom'])?></p>
+    <p id='prenom'><?=e($user['prenom'])?></p>
     </span>
 
     <h1 class='header' id="titre">But Info Villetaneuse</h1>

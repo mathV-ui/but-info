@@ -1,7 +1,7 @@
 
 <h3>Listes des élèves.</h3>
 
-<form>
+<form >
     <label for="search">Recherche :</label>
     <input type="text" id="search" name="search" placeholder="Entrez votre recherche">
 
@@ -17,7 +17,7 @@
     <button type="submit">Rechercher</button>
 </form>
 <ul class="eleves sites">
-        
+<?php foreach($sites as $site):?>
 <li class="eleve sites" id="student['id']">
 <p class="sites">nom</p>
 <p class="sites">prenom</p>
@@ -25,4 +25,5 @@
 <p class="sites"><a class="sites" href="student['site']">Mon site</a></p>
 <img src="$student['photo']" alt="student['nom']">
 </li>
+<?php endforeach; ?>
 </ul>

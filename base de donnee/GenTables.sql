@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS discussion CASCADE;
 DROP TABLE IF EXISTS github CASCADE;
 DROP TABLE IF EXISTS message CASCADE;
 DROP TABLE IF EXISTS site CASCADE;
-
+DROP TABLE IF EXISTS logs CASCADE;
 CREATE TABLE utilisateur (
    id_utilisateur SERIAL PRIMARY KEY,
    nom VARCHAR(64) NOT NULL,
@@ -69,5 +69,13 @@ CREATE TABLE site (
    id_github INT NOT NULL,
    id_utilisateur INT NOT NULL,
    FOREIGN KEY (id_github) REFERENCES github(id_github) ON DELETE CASCADE,
+   FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE
+);
+
+CREATE TABLE logs(
+   id_logs SERIAL PRIMARY KEY,
+   commentaire VARCHAR(256),
+   date_du_log TIMESTAMP NOT NULL,
+   id_utilisateur INT NOT NULL,
    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE
 );

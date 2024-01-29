@@ -461,4 +461,112 @@ class Model
             return false;
         }
     }
+
+    /**
+     * Méthode pour récupérer toutes les informations sur les sites gérés
+     *
+     * @return array|false Un tableau contenant toutes les informations sur les sites gérés en cas de succès, false en cas d'échec
+     */
+    public function getSitesManage()
+    {
+        try {
+            // Requête pour récupérer toutes les informations sur les sites gérés
+            $query = $this->bd->prepare("SELECT s.*, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, g.lien AS lien_github FROM site s JOIN utilisateur u ON s.id_utilisateur = u.id_utilisateur LEFT JOIN github g ON s.id_github = g.id_github");
+            $query->execute();
+
+            // Récupérer les données des sites gérés avec toutes les informations associées
+            $sites = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            // Retourner les données des sites gérés
+            return $sites;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour supprimer une ligne dans la table site en utilisant l'ID
+     *
+     * @param int $siteId L'ID du site à supprimer
+     * @return bool Retourne true en cas de succès, false en cas d'échec
+     */
+    public function deleteSite($siteId)
+    {
+        try {
+            // Requête pour supprimer le site avec l'ID spécifié
+            $query = $this->bd->prepare("DELETE FROM site WHERE id_site = :siteId");
+            $query->bindParam(':siteId', $siteId, PDO::PARAM_INT);
+            $query->execute();
+
+            // Vérifier si la requête de suppression a réussi
+            if ($query->rowCount() > 0) {
+                return true; // Succès : le site a été supprimé avec succès
+            } else {
+                return false; // Échec : aucun enregistrement supprimé
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour ajouter un log dans la table logs
+     *
+     * @param string $commentaire Le commentaire à enregistrer dans le log
+     * @param int $userId L'ID de l'utilisateur associé au log
+     * @return bool Retourne true en cas de succès, false en cas d'échec
+     */
+    public function addLog($commentaire, $userId)
+    {
+        try {
+            // Requête pour ajouter un log dans la table logs
+            $query = $this->bd->prepare("INSERT INTO logs (commentaire, date_du_log, id_utilisateur) VALUES (:commentaire, NOW(), :userId)");
+            $query->bindParam(':commentaire', $commentaire, PDO::PARAM_STR);
+            $query->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $query->execute();
+
+            // Vérifier si la requête d'insertion a réussi
+            if ($query->rowCount() > 0) {
+                return true; // Succès : le log a été ajouté avec succès
+            } else {
+                return false; // Échec : aucun enregistrement ajouté
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour récupérer les logs dans l'ordre chronologique
+     *
+     * @return array|false Un tableau contenant les logs dans l'ordre chronologique en cas de succès, false en cas d'échec
+     */
+    public function getLogsChronological()
+    {
+        try {
+            // Requête pour récupérer les logs dans l'ordre chronologique
+            $query = $this->bd->prepare("SELECT * FROM logs ORDER BY date_du_log DESC");
+            $query->execute();
+
+            // Récupérer les logs dans l'ordre chronologique
+            $logs = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            // Retourner les logs
+            return $logs;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
 }

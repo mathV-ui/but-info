@@ -1,3 +1,23 @@
+/* Lien non visité */
+a {
+    color: #cc3333; /* Couleur par défaut du texte du lien non visité */
+}
+
+/* Lien survolé */
+a :hover {
+    color: #ff0000; /* Couleur du texte du lien lorsqu'il est survolé par la souris */
+}
+
+/* Lien visité */
+a :visited {
+    color: #800080; /* Couleur du texte du lien déjà visité */
+}
+
+/* Lien actif (en cours de clic) */
+a :active {
+    color: #000000; /* Couleur du texte du lien lorsqu'il est activé (en cours de clic) */
+}
+
 .checkbox-wrapper-54.header input[type="checkbox"] {
     visibility: hidden;
     display: none;
@@ -106,22 +126,3 @@ ul.eleves li.eleve:hover {
     border-color: rgb(255, 0, 0); /* Change la couleur de la bordure au survol */
 }
 
-/* Lien non visité */
-a.sites {
-    color: #cc3333; /* Couleur par défaut du texte du lien non visité */
-}
-
-/* Lien survolé */
-a.sites:hover {
-    color: #ff0000; /* Couleur du texte du lien lorsqu'il est survolé par la souris */
-}
-
-/* Lien visité */
-a.sites:visited {
-    color: #800080; /* Couleur du texte du lien déjà visité */
-}
-
-/* Lien actif (en cours de clic) */
-a.sites:active {
-    color: #000000; /* Couleur du texte du lien lorsqu'il est activé (en cours de clic) */
-}

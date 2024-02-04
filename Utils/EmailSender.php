@@ -16,16 +16,17 @@ class EmailSender {
 
         try {
             // Paramètres du serveur SMTP
+            require '../../credentials.php';
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = $hostMail;
             $mail->SMTPAuth = true;
-            $mail->Username = 'noreply.perform.vision@gmail.com'; 
-            $mail->Password = 'syhktkewtdnpbteq';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            $mail->Username = $nomMail; 
+            $mail->Password = $mdpMail;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Utiliser ENCRYPTION_SMTPS pour SSL/TLS
+            $mail->Port = 465; // Port 465 pour SSL/TLS
 
             // Expéditeur et destinataire
-            $mail->setFrom('noreply.perform.vision@gmail.com', 'perform vision');
+            $mail->setFrom('noreply@but-info.xyz', 'but-info');
             $mail->addAddress($email);
 
             // Contenu de l'e-mail

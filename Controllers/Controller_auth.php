@@ -66,10 +66,13 @@ class Controller_auth extends Controller
                 if (strlen($password) <= 256 && strlen($email) <= 128) {
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $user = Model::getModel()->getUserByCredentials($email, $password);
-
+                        
                         if ($user) {
-
-                            var_dump($user);
+                            $userId = $user['id_utilisateur'];
+                            if (Model::getModel()->isMailVerified($userId)){
+                                echo 'verifie le mail';
+                                $this->render("auth", $data);
+                            }
 
                             // Connexion réussie, créer une session et stocker le token
                             session_start();
@@ -83,7 +86,7 @@ class Controller_auth extends Controller
                             header("Location: ?controller=home");
                             exit();
                         } else {
-                            echo  var_dump($user);
+                            echo "no user";
                         }
                     } else {
                         echo "Format d'e-mail invalide.";
@@ -146,11 +149,11 @@ class Controller_auth extends Controller
                                 if ($result) {
                                     echo "Inscription réussie!<br>";
                                     $verificationToken = Model::getModel()->getTokenUtilisateurByEmail($email);
-                                    // $verificationLink = 'http://localhost/perform_vision/?controller=auth&action=valide_email'. '&token=' . urlencode($verificationToken);
+                                    $verificationLink = 'http://localhost/B-I.xyz/but-info/?controller=auth&action=valide_email&token=' . urlencode($verificationToken);
 
-                                    // EmailSender::sendVerificationEmail($email, 'Vérification de l\'adresse e-mail', 'Cliquez sur le lien suivant pour vérifier votre adresse e-mail: ' . $verificationLink);
+                                    EmailSender::sendVerificationEmail($email, 'Vérification de l\'adresse e-mail', 'Cliquez sur le lien suivant pour vérifier votre adresse e-mail: ' . $verificationLink);
                                     
-                                    // echo "<br> Un e-mail de vérification a été envoyé à votre adresse. <br>";
+                                    echo "<br> Un e-mail de vérification a été envoyé à votre adresse. <br>";
                                     if (!isset($_GET['ci'])){
                                         $data=[
                                             'ci' => 'connecter'
@@ -222,5 +225,153 @@ class Controller_auth extends Controller
             ];
         }
         $this->render("auth", $data);
+    }
+    public function action_reset() {
+        if (isset($_SESSION['user_id']) && isset($_SESSION['user_token'])) {
+            // Vérifier si les valeurs de session ne sont pas vides
+            if (!empty($_SESSION['user_id']) && !empty($_SESSION['user_token'])) {
+                $model = Model::getModel();
+                // La session existe avec des valeurs non vides et existantes
+                $data = [
+                    'co' => 'connected',
+                    'user' => $model->getUserInfoByToken($_SESSION['user_token']),
+                ];
+                $this->render('home', $data);
+            } 
+        }
+        if (!isset($_GET['ci'])){
+            $data=[
+                'ci' => 'connecter'
+            ];
+        }else{
+            $data=[
+                'ci' => $_GET['ci']
+            ];
+        }
+        $this->render('auth_reset', $data);
+    }
+
+    public function action_reset_mdp(){
+        if (isset($_SESSION['user_id']) && isset($_SESSION['user_token'])) {
+            // Vérifier si les valeurs de session ne sont pas vides
+            if (!empty($_SESSION['user_id']) && !empty($_SESSION['user_token'])) {
+                $model = Model::getModel();
+                // La session existe avec des valeurs non vides et existantes
+                $data = [
+                    'co' => 'connected',
+                    'user' => $model->getUserInfoByToken($_SESSION['user_token']),
+                ];
+                $this->render('home', $data);
+            } 
+        }
+        $model = Model::getModel();
+        if (isset($_POST['email'])){
+            if($model->isMailExist($_POST['email'])){
+                echo "Mail de reset envoyé a votre adresse email";
+                $email = $_POST['email'];
+                $resetMdpToken = Model::getModel()->getTokenUtilisateurByEmail($email);
+                $resetMdpToken = 'http://localhost/B-I.xyz/but-info/?controller=auth&action=reset_mdp_nl&token=' . urlencode($resetMdpToken);
+
+                 EmailSender::sendVerificationEmail($email, 'Vérification de l\'adresse e-mail', 'Cliquez sur le lien suivant pour vérifier votre adresse e-mail: ' . $resetMdpToken);
+                                    
+                if (!isset($_GET['ci'])){
+                    $data=[
+                        'ci' => 'connecter'
+                    ];
+                }else{
+                    $data=[
+                        'ci' => $_GET['ci']
+                    ];
+                }
+                $this->render('auth', $data);
+            }else{
+                echo "compte existe pas";
+            }
+
+        }else{
+            $data = [
+                'co' => 'connected'
+            ];
+            $this->render('home', $data);
+        }
+    }
+    public function action_reset_mdp_nl(){
+        if (isset($_SESSION['user_id']) && isset($_SESSION['user_token'])) {
+            // Vérifier si les valeurs de session ne sont pas vides
+            if (!empty($_SESSION['user_id']) && !empty($_SESSION['user_token'])) {
+                $model = Model::getModel();
+                // La session existe avec des valeurs non vides et existantes
+                $data = [
+                    'co' => 'connected',
+                    'user' => $model->getUserInfoByToken($_SESSION['user_token']),
+                ];
+                $this->render('home', $data);
+            } 
+        }    
+        $model = Model::getModel();
+        if(isset($_GET['token'])){
+            if($model->isTokenExist($_GET['token'])){
+                $data = [
+                    'token' =>$_GET['token']
+                ];
+                $this->render('auth_reset_mdp_nl', $data);
+            }
+        }
+    }
+    
+    public function action_reset_mdp_nk(){
+        if (isset($_SESSION['user_id']) && isset($_SESSION['user_token'])) {
+            // Vérifier si les valeurs de session ne sont pas vides
+            if (!empty($_SESSION['user_id']) && !empty($_SESSION['user_token'])) {
+                $model = Model::getModel();
+                // La session existe avec des valeurs non vides et existantes
+                $data = [
+                    'co' => 'connected',
+                    'user' => $model->getUserInfoByToken($_SESSION['user_token']),
+                ];
+                $this->render('home', $data);
+            } 
+        }    
+        $model = Model::getModel();
+        if(isset($_GET['token'])){
+            if($model->isTokenExist($_GET['token'])){
+                if(isset($_POST['mdp'])){
+                    $newPassword = e(trim($_POST['mdp']));
+                    $token = e($_GET['token']);
+                    if(strlen($newPassword) <= 256){
+                        $result = $model->changePasswordByToken($token, $newPassword);
+                        echo "C'est ok !";
+                        if (!isset($_GET['ci'])){
+                            $data=[
+                                'ci' => 'connecter'
+                            ];
+                        }else{
+                            $data=[
+                                'ci' => $_GET['ci']
+                            ];
+                        }
+                        $this->render('auth', $data);
+                    }else{
+                        echo 'mdp trop petit ou trop grand';
+                    }
+                }else{
+                    echo 'error 404 mdp';
+                }
+            }else{
+                echo 'error 404 token';
+            }
+        }else{
+            echo 'error 404 token';
+        }
+        if (!isset($_GET['ci'])){
+            $data=[
+                'ci' => 'connecter'
+            ];
+        }else{
+            $data=[
+                'ci' => $_GET['ci']
+            ];
+        }
+        $this->render('auth', $data);
     }
 }

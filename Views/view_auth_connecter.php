@@ -8,7 +8,8 @@
 
         <input type="submit" value="connecter">
     </form>
-
+    <br>
+    Mot de passe oublier ? <a href="?controller=auth&action=reset"><button id="reset" class="header" role="button" >Reset Mot de Passe</button></a>
     <br>
     Pas Encore Membre ? : <a href="?controller=auth&ci=inscrire"><button id="connection" class="header" role="button" >S'inscrire</button></a>
     <br>

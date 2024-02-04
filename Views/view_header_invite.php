@@ -11,3 +11,9 @@
       <p>dark-mode</p>
     </div>
 </header>
+<nav>
+    <ul class="sous">
+    <li><a href="?controller=home" id='nav'>Home</a></li>
+        <li><a href="?controller=about" id='nav'>A propos</a></li>
+       </ul>
+</nav>

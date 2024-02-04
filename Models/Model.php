@@ -569,4 +569,146 @@ class Model
             return false;
         }
     }
+
+    /**
+     * Méthode pour valider un utilisateur en mettant le champ mail_verifier à true
+     *
+     * @param string $token Le token de l'utilisateur à valider
+     * @return bool Retourne true en cas de succès, false en cas d'échec
+     */
+    public function validerTokenUtilisateur($token)
+    {
+        try {
+            // Requête pour mettre à jour le champ mail_verifier à true pour l'utilisateur avec le token spécifié
+            $query = $this->bd->prepare("UPDATE utilisateur SET mail_verifier = TRUE WHERE token = :token");
+            $query->bindParam(':token', $token, PDO::PARAM_STR);
+            $query->execute();
+
+            // Vérifier si la requête de mise à jour a réussi
+            if ($query->rowCount() > 0) {
+                return true; // Succès : le champ mail_verifier a été mis à jour avec succès
+            } else {
+                return false; // Échec : aucun enregistrement mis à jour
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+        /**
+     * Méthode pour vérifier si un utilisateur a le champ mail_verifier à FALSE ou à TRUE
+     *
+     * @param int $userId L'ID de l'utilisateur à vérifier
+     * @return bool|false Retourne true si le champ mail_verifier est à TRUE, false si le champ mail_verifier est à FALSE, ou false en cas d'échec
+     */
+    public function isMailVerified($userId)
+    {
+        try {
+            // Requête pour vérifier si le champ mail_verifier est à TRUE ou à FALSE pour l'utilisateur spécifié
+            $query = $this->bd->prepare("SELECT mail_verifier FROM utilisateur WHERE id_utilisateur = :userId");
+            $query->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $query->execute();
+
+            // Récupérer la valeur de mail_verifier
+            $result = $query->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['mail_verifier'] == false) {
+                return true; // Convertir en booléen et retourner la valeur de mail_verifier
+            } else {
+                return false; // Échec : aucun enregistrement trouvé pour l'utilisateur spécifié
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+    /**
+     * Méthode pour vérifier si un e-mail existe dans la base de données
+     *
+     * @param string $email L'e-mail à vérifier
+     * @return bool Retourne true si l'e-mail existe, sinon false
+     */
+    public function isMailExist($email)
+    {
+        try {
+            // Requête pour vérifier si l'e-mail existe dans la base de données
+            $query = $this->bd->prepare("SELECT COUNT(*) FROM utilisateur WHERE mail = :email");
+            $query->bindParam(':email', $email, PDO::PARAM_STR);
+            $query->execute();
+
+            // Récupérer le nombre de lignes correspondant à l'e-mail donné
+            $count = $query->fetchColumn();
+
+            // Retourner true si l'e-mail existe (le nombre de lignes est supérieur à zéro), sinon false
+            return $count > 0 ? true : false;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour vérifier si un token existe dans la base de données
+     *
+     * @param string $token Le token à vérifier
+     * @return bool Retourne true si le token existe, sinon false
+     */
+    public function isTokenExist($token)
+    {
+        try {
+            // Requête pour vérifier si le token existe dans la base de données
+            $query = $this->bd->prepare("SELECT COUNT(*) FROM utilisateur WHERE token = :token");
+            $query->bindParam(':token', $token, PDO::PARAM_STR);
+            $query->execute();
+
+            // Récupérer le nombre de lignes correspondant au token donné
+            $count = $query->fetchColumn();
+
+            // Retourner true si le token existe (le nombre de lignes est supérieur à zéro), sinon false
+            return $count > 0 ? true : false;
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Méthode pour changer le mot de passe d'un utilisateur en utilisant son token
+     *
+     * @param string $token Le token de l'utilisateur
+     * @param string $newPassword Le nouveau mot de passe
+     * @return bool Retourne true en cas de succès, sinon false
+     */
+    public function changePasswordByToken($token, $newPassword)
+    {
+        try {
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            // Requête pour mettre à jour le mot de passe de l'utilisateur avec le token spécifié
+            $query = $this->bd->prepare("UPDATE utilisateur SET password = :newPassword WHERE token = :token");
+            $query->bindParam(':newPassword', $hashedPassword);
+            $query->bindParam(':token', $token, PDO::PARAM_STR);
+            $query->execute();
+
+            // Vérifier si la requête de mise à jour a réussi
+            if ($query->rowCount() > 0) {
+                return true; // Succès : le mot de passe a été mis à jour avec succès
+            } else {
+                return false; // Échec : aucun enregistrement mis à jour
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de la base de données
+            // Vous pouvez ajuster cela en fonction de vos besoins
+            echo "Erreur de base de données: " . $e->getMessage();
+            return false;
+        }
+    }
 }
